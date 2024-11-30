@@ -10,7 +10,7 @@
 #include <ArduinoJson.h>
 #include <Adafruit_AHTX0.h>
 #include <MQUnifiedsensor.h>
-// #include <BH1750.h>
+#include <BH1750.h>
 #include <Wire.h>
 //==============================================================================
 #define dw digitalWrite
@@ -20,7 +20,7 @@
 #define RS_RX 17
 #define MQ_PIN 34
 //---------------------------------------
-#define SERVER "abc.com"
+#define SERVER "giamsatcaytrong.com"
 #define PORT 80
 #define ssid "Wokwi-GUEST" // test
 #define pass ""            // test
@@ -37,12 +37,12 @@
 #define Voltage_Resolution (3.3) // 3V3 <- IMPORTANT. Source: https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/
 #define ADC_Bit_Resolution (12)  // ESP-32 bit resolution. Source: https://randomnerdtutorials.com/esp32-adc-analog-read-arduino-ide/
 #define RatioMQ135CleanAir 3.6   // RS / R0 = 3.6 ppm
-//==============================================================================
-MQUnifiedsensor MQ135(Board, Voltage_Resolution, ADC_Bit_Resolution, Pin, Type);
+    //==============================================================================
+    MQUnifiedsensor MQ135(Board, Voltage_Resolution, ADC_Bit_Resolution, Pin, Type);
 ModbusMaster node;
 SocketIOclient socketIO;
 Adafruit_AHTX0 aht;
-// BH1750 lightMeter;
+BH1750 lightMeter;
 //==============================================================================
 float ph = -1.0, soilMoisture = -1.0, soilTemp = -1.0, EC = -1.0, n = -1.0, p = -1.0, k = -1.0;
 float co2 = -1, so2 = -1, no2 = -1;
@@ -219,11 +219,11 @@ void calibMQ135()
   }
 }
 //==============================================================================
-// void readLight()()
-// {
-//   lux = lightMeter.readLightLevel();
-//   lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
-// }
+void readLight()
+{
+  lux = lightMeter.readLightLevel();
+  lightMeter.configure(BH1750::ONE_TIME_HIGH_RES_MODE);
+}
 //==============================================================================
 void readMQ()
 {
@@ -256,7 +256,7 @@ void sendDataToServer(int type, int buttonType, String message)
     data["p"] = String(p, 2);
     data["k"] = String(k, 2);
     data["ec"] = String(EC, 2);
-    // data["lux"] = String(lux, 2);
+    data["lux"] = String(lux, 2);
     data["co2"] = String(co2, 2);
     data["so2"] = String(so2, 2);
     data["no2"] = String(no2, 2);
@@ -356,7 +356,7 @@ void setup()
 
   aht.begin();
 
-  // lightMeter.begin(BH1750::ONE_TIME_HIGH_RES_MODE);
+  lightMeter.begin(BH1750::ONE_TIME_HIGH_RES_MODE);
 
   WiFiManager wifiManager;                 // Create a WiFiManager instance
   wifiManager.autoConnect("ESP32_Config"); // Creates a WiFi access point with the specified name
